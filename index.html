@@ -1,0 +1,730 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethical Hacking Academy | CEH Learning</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+
+<style>
+:root {
+    --bg-dark: #0d1117;
+    --bg-panel: #161b22;
+    --primary: #00ff41; /* Hacker Green */
+    --secondary: #0ea5e9; /* Cyan */
+    --danger: #ff0033;
+    --text-main: #c9d1d9;
+    --text-muted: #8b949e;
+    --font-main: 'Share Tech Mono', monospace;
+    --font-code: 'Fira Code', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* --- Layout --- */
+.app-container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    width: 300px;
+    background: var(--bg-panel);
+    border-right: 1px solid #30363d;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background: radial-gradient(circle at center, #13171f 0%, #0d1117 100%);
+}
+
+/* --- Typography & Elements --- */
+h1, h2, h3 { 
+    color: var(--primary); 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+}
+
+h1 { 
+    font-size: 1.5rem; 
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3); 
+}
+
+button {
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.btn-primary:hover {
+    background: var(--primary);
+    color: #000;
+    box-shadow: 0 0 15px var(--primary);
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 0.5rem;
+    margin-top: auto;
+    font-size: 0.8rem;
+}
+
+/* --- Stats & XP --- */
+.stat-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 0.2rem;
+}
+
+.progress-container {
+    width: 100%;
+    height: 8px;
+    background: #30363d;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--secondary);
+    width: 0%;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 8px var(--secondary);
+}
+
+/* --- Modules Grid --- */
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.module-card {
+    background: var(--bg-panel);
+    border: 1px solid #30363d;
+    padding: 1.5rem;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.module-card:hover:not(.locked) {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+.module-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.module-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.8rem;
+    color: var(--primary);
+}
+
+/* --- Terminal / Quiz UI --- */
+.terminal-window {
+    background: #000;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    font-family: var(--font-code);
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.terminal-header {
+    background: #161b22;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid #30363d;
+}
+
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.red { background: #ff5f56; }
+.yellow { background: #ffbd2e; }
+.green { background: #27c93f; }
+
+.terminal-body { 
+    padding: 2rem; 
+    color: #fff; 
+    min-height: 300px; 
+}
+
+.quiz-option {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: var(--text-main);
+    text-align: left;
+    font-family: var(--font-code);
+}
+
+.quiz-option:hover { 
+    background: #1f2428; 
+    border-color: var(--secondary); 
+}
+
+/* --- Lab Simulation --- */
+.input-line { 
+    display: flex; 
+    margin-top: 10px; 
+}
+
+.input-line input {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    font-family: var(--font-code);
+    font-size: 1rem;
+    flex: 1;
+    margin-left: 10px;
+    outline: none;
+}
+
+#lab-output { 
+    white-space: pre-wrap; 
+    line-height: 1.5; 
+    color: #ccc; 
+}
+
+/* --- Utility --- */
+.hidden { display: none !important; }
+.view { animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Modal --- */
+.modal {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--bg-panel);
+    border: 2px solid var(--danger);
+    padding: 2rem;
+    max-width: 500px;
+    text-align: center;
+}
+
+.modal-content ul { 
+    text-align: left; 
+    margin: 1rem 0; 
+    padding-left: 1.5rem; 
+}
+</style>
+
+
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <h1>[ETHICAL_HACKER]</h1>
+                <p>v1.0.0 // Learning Node</p>
+            </div>
+
+            <div class="user-stats">
+                <div class="stat-box">
+                    <span>Rank</span>
+                    <h3 id="user-rank">Script Kiddie</h3>
+                </div>
+                <div class="stat-box">
+                    <span>Level</span>
+                    <h3 id="user-level">1</h3>
+                </div>
+                <div class="stat-box">
+                    <span>XP</span>
+                    <h3 id="user-xp">0 / 100</h3>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="xp-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="badges-section">
+                <h4>// BADGES_OBTAINED</h4>
+                <div id="badge-grid" class="badge-grid">
+                    </div>
+            </div>
+
+            <button onclick="resetProgress()" class="btn-danger">! RESET SYSTEM !</button>
+        </aside>
+
+        <main class="main-content">
+            
+            <section id="dashboard-view" class="view active">
+                <header class="view-header">
+                    <h2>// MISSION_SELECT</h2>
+                    <p>Select a module to begin training. Complete quizzes to unlock higher tiers.</p>
+                </header>
+                <div id="module-grid" class="module-grid">
+                    </div>
+            </section>
+
+            <section id="lesson-view" class="view hidden">
+                <header class="view-header">
+                    <button class="btn-back" onclick="showDashboard()">&lt; RETURN_TO_BASE</button>
+                    <h2 id="lesson-title">Module Title</h2>
+                </header>
+                <div class="content-box">
+                    <div id="lesson-content"></div>
+                </div>
+                <div class="action-area">
+                    <button class="btn-primary" onclick="startQuiz()">INITIALIZE_QUIZ >></button>
+                </div>
+            </section>
+
+            <section id="quiz-view" class="view hidden">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>root@quiz-server:~#</span>
+                    </div>
+                    <div class="terminal-body">
+                        <p id="quiz-question" class="typing-effect">Question text...</p>
+                        <div id="quiz-options" class="quiz-options">
+                            </div>
+                        <div id="quiz-feedback" class="feedback-msg"></div>
+                    </div>
+                </div>
+            </section>
+
+             <section id="lab-view" class="view hidden">
+                <header class="view-header">
+                    <button class="btn-back" onclick="showDashboard()">&lt; ABORT_MISSION</button>
+                    <h2>// SIMULATION_LAB</h2>
+                </header>
+                <div class="terminal-window large">
+                    <div class="terminal-body" id="lab-terminal">
+                        <div id="lab-output">Initializing Safe Environment...<br>Target: 192.168.1.55<br>Type 'help' for commands.</div>
+                        <div class="input-line">
+                            <span class="prompt">hacker@kali:~$</span>
+                            <input type="text" id="lab-input" autocomplete="off" autofocus>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="disclaimer-modal" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ ETHICAL WARNING</h2>
+            <p>This tool is for educational purposes only.</p>
+            <ul>
+                <li>Do not use these techniques on systems you do not own.</li>
+                <li>Unauthorized access is a crime.</li>
+                <li>By continuing, you agree to use this knowledge responsibly.</li>
+            </ul>
+            <button class="btn-primary" onclick="closeModal()">I AGREE & UNDERSTAND</button>
+        </div>
+    </div>
+
+    <script>
+/* =========================================
+   1. GAME STATE & DATA STRUCTURE
+   ========================================= */
+
+// Initial State
+const defaultState = {
+    xp: 0,
+    level: 1,
+    completedModules: [], // Store IDs of completed modules
+    badges: []
+};
+
+// Load from LocalStorage or use default
+let userState = JSON.parse(localStorage.getItem('ceh_user_state')) || defaultState;
+
+// Configuration
+const XP_PER_LEVEL = 100;
+const XP_PER_QUIZ = 50;
+
+/* --- THE SYLLABUS DATA --- */
+const modules = [
+    {
+        id: 1,
+        title: "Intro to Ethical Hacking",
+        desc: "Define the scope, ethics, and legalities.",
+        type: "theory",
+        content: `
+            <h3>// WHAT IS ETHICAL HACKING?</h3>
+            <p>Ethical hacking involves an authorized attempt to gain unauthorized access to a computer system, application, or data.</p>
+            <p>The key difference between a "Black Hat" and a "White Hat" is <strong>PERMISSION</strong>.</p>
+            <br>
+            <h3>// THE CIA TRIAD</h3>
+            <ul>
+                <li><strong>Confidentiality:</strong> Keeping data secret.</li>
+                <li><strong>Integrity:</strong> Keeping data unaltered.</li>
+                <li><strong>Availability:</strong> Keeping data accessible.</li>
+            </ul>
+        `,
+        quiz: [
+            {
+                q: "What is the primary difference between ethical and malicious hackers?",
+                options: ["Skill Level", "Permission", "Operating System", "Tools Used"],
+                correct: 1 // Index of correct answer
+            },
+            {
+                q: "Which element of the CIA triad ensures data is not altered?",
+                options: ["Confidentiality", "Integrity", "Availability", "Authentication"],
+                correct: 1
+            }
+        ],
+        badge: "White Hat Initiate"
+    },
+    {
+        id: 2,
+        title: "Networking Basics",
+        desc: "TCP/IP, Ports, and Protocols.",
+        type: "theory",
+        content: `
+            <h3>// TCP/IP HANDSHAKE</h3>
+            <p>Connection establishment happens via a 3-way handshake:</p>
+            <ol>
+                <li><strong>SYN:</strong> Client sends synchronize packet.</li>
+                <li><strong>SYN-ACK:</strong> Server acknowledges and asks to sync.</li>
+                <li><strong>ACK:</strong> Client acknowledges.</li>
+            </ol>
+            <br>
+            <h3>// COMMON PORTS</h3>
+            <p>HTTP (80), HTTPS (443), SSH (22), FTP (21).</p>
+        `,
+        quiz: [
+            {
+                q: "Which port is standard for SSH?",
+                options: ["80", "21", "22", "25"],
+                correct: 2
+            }
+        ]
+    },
+    {
+        id: 3,
+        title: "Scanning & Recon",
+        desc: "Simulated Nmap scanning lab.",
+        type: "lab", // Triggers the lab view
+        labTask: "scan", // Identifier for lab logic
+        badge: "Recon Master",
+        content: "<p>In this module, you will use a simulated terminal to scan a target IP address.</p>"
+    },
+    // ... Add more modules (4-10) here following the structure ... 
+    {
+        id: 4,
+        title: "Web App Vulns",
+        desc: "SQL Injection & XSS concepts.",
+        type: "theory",
+        content: "<h3>// SQL INJECTION</h3><p>Occurs when untrusted data is sent to an interpreter as part of a command.</p>",
+        quiz: [{q: "What character is often used to test for SQLi?", options: ["#", ";", "'", "%"], correct: 2}]
+    }
+];
+
+/* =========================================
+   2. CORE FUNCTIONS (Gamification)
+   ========================================= */
+
+function updateUI() {
+    // Stats
+    document.getElementById('user-xp').innerText = `${userState.xp} / ${userState.level * XP_PER_LEVEL}`;
+    document.getElementById('user-level').innerText = userState.level;
+    document.getElementById('xp-bar').style.width = `${(userState.xp % XP_PER_LEVEL) / XP_PER_LEVEL * 100}%`;
+    
+    // Rank Logic
+    const ranks = ["Script Kiddie", "Neophyte", "Apprentice", "Cyber Ninja", "Elite Hacker"];
+    const rankIndex = Math.min(Math.floor(userState.level / 3), ranks.length - 1);
+    document.getElementById('user-rank').innerText = ranks[rankIndex];
+
+    // Badges
+    const badgeContainer = document.getElementById('badge-grid');
+    badgeContainer.innerHTML = '';
+    userState.badges.forEach(badge => {
+        const span = document.createElement('span');
+        span.className = 'badge-item';
+        span.innerText = `🏆 ${badge}`;
+        span.style.display = 'block';
+        span.style.color = 'var(--secondary)';
+        span.style.fontSize = '0.8rem';
+        badgeContainer.appendChild(span);
+    });
+
+    renderModules();
+    saveState();
+}
+
+function saveState() {
+    localStorage.setItem('ceh_user_state', JSON.stringify(userState));
+}
+
+function addXP(amount) {
+    userState.xp += amount;
+    // Level Up Logic
+    if (userState.xp >= userState.level * XP_PER_LEVEL) {
+        userState.level++;
+        alert(`🎉 LEVEL UP! You are now Level ${userState.level}`);
+    }
+    updateUI();
+}
+
+function completeModule(moduleId) {
+    if (!userState.completedModules.includes(moduleId)) {
+        userState.completedModules.push(moduleId);
+        
+        // Award Badge if applicable
+        const module = modules.find(m => m.id === moduleId);
+        if (module.badge) {
+            userState.badges.push(module.badge);
+            alert(`🏅 BADGE UNLOCKED: ${module.badge}`);
+        }
+        
+        addXP(XP_PER_QUIZ);
+    }
+    showDashboard();
+}
+
+function resetProgress() {
+    if(confirm("Are you sure? All progress will be lost.")) {
+        localStorage.removeItem('ceh_user_state');
+        location.reload();
+    }
+}
+
+/* =========================================
+   3. NAVIGATION & VIEW CONTROLLER
+   ========================================= */
+
+function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+    
+    const activeEl = document.getElementById(viewId);
+    activeEl.classList.remove('hidden');
+    activeEl.classList.add('active');
+}
+
+function showDashboard() {
+    switchView('dashboard-view');
+    updateUI();
+}
+
+let currentModuleId = null;
+
+function renderModules() {
+    const grid = document.getElementById('module-grid');
+    grid.innerHTML = '';
+
+    modules.forEach((mod, index) => {
+        const isLocked = index > 0 && !userState.completedModules.includes(modules[index-1].id);
+        const isCompleted = userState.completedModules.includes(mod.id);
+        
+        const card = document.createElement('div');
+        card.className = `module-card ${isLocked ? 'locked' : ''}`;
+        
+        let statusIcon = isLocked ? '🔒' : (isCompleted ? '✅' : '⚡');
+        
+        card.innerHTML = `
+            <div class="module-status">${statusIcon}</div>
+            <h3>${mod.id}. ${mod.title}</h3>
+            <p>${mod.desc}</p>
+        `;
+
+        if (!isLocked) {
+            card.onclick = () => loadModule(mod.id);
+        }
+        grid.appendChild(card);
+    });
+}
+
+function loadModule(id) {
+    currentModuleId = id;
+    const mod = modules.find(m => m.id === id);
+    
+    if (mod.type === 'lab') {
+        initLab(mod);
+    } else {
+        document.getElementById('lesson-title').innerText = mod.title;
+        document.getElementById('lesson-content').innerHTML = mod.content;
+        switchView('lesson-view');
+    }
+}
+
+/* =========================================
+   4. QUIZ ENGINE
+   ========================================= */
+
+let currentQuizIndex = 0;
+let currentScore = 0;
+
+function startQuiz() {
+    currentQuizIndex = 0;
+    currentScore = 0;
+    switchView('quiz-view');
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const mod = modules.find(m => m.id === currentModuleId);
+    const questionData = mod.quiz[currentQuizIndex];
+    
+    document.getElementById('quiz-question').innerText = `[?] ${questionData.q}`;
+    const optsDiv = document.getElementById('quiz-options');
+    optsDiv.innerHTML = '';
+    document.getElementById('quiz-feedback').innerText = '';
+
+    questionData.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.innerText = `> ${opt}`;
+        btn.onclick = () => checkAnswer(index, questionData.correct);
+        optsDiv.appendChild(btn);
+    });
+}
+
+function checkAnswer(selected, correct) {
+    const feedback = document.getElementById('quiz-feedback');
+    if (selected === correct) {
+        feedback.innerText = ">> CORRECT. ACCESS GRANTED.";
+        feedback.style.color = "var(--primary)";
+        setTimeout(nextQuestion, 1000);
+    } else {
+        feedback.innerText = ">> INCORRECT. ACCESS DENIED.";
+        feedback.style.color = "var(--danger)";
+    }
+}
+
+function nextQuestion() {
+    const mod = modules.find(m => m.id === currentModuleId);
+    currentQuizIndex++;
+    
+    if (currentQuizIndex < mod.quiz.length) {
+        renderQuestion();
+    } else {
+        alert("Mission Complete. Integrity Verified.");
+        completeModule(currentModuleId);
+    }
+}
+
+/* =========================================
+   5. LAB SIMULATOR (Terminal)
+   ========================================= */
+
+function initLab(mod) {
+    switchView('lab-view');
+    const terminal = document.getElementById('lab-output');
+    const input = document.getElementById('lab-input');
+    
+    terminal.innerHTML = `Initializing Lab Environment for: ${mod.title}...<br>Target IP: 192.168.1.55<br>Objective: Perform a port scan.<br>Hint: Use 'nmap'<br>`;
+    
+    input.value = '';
+    input.focus();
+    
+    input.onkeydown = function(e) {
+        if (e.key === 'Enter') {
+            const cmd = this.value.trim().toLowerCase();
+            this.value = '';
+            processCommand(cmd, terminal);
+        }
+    };
+}
+
+function processCommand(cmd, outputDiv) {
+    outputDiv.innerHTML += `<br><span style="color:var(--primary)">hacker@kali:~$</span> ${cmd}<br>`;
+    
+    if (cmd === 'help') {
+        outputDiv.innerHTML += `Available commands: nmap, ping, clear, exit`;
+    } else if (cmd.startsWith('nmap')) {
+        outputDiv.innerHTML += `Starting Nmap 7.92...<br>Scanning 192.168.1.55...<br>PORT   STATE SERVICE<br>22/tcp open  ssh<br>80/tcp open  http<br><br>Scan Complete.`;
+        setTimeout(() => {
+            alert("Lab Objective Complete!");
+            completeModule(currentModuleId);
+        }, 1500);
+    } else if (cmd === 'clear') {
+        outputDiv.innerHTML = '';
+    } else {
+        outputDiv.innerHTML += `bash: ${cmd}: command not found`;
+    }
+    
+    // Auto scroll to bottom
+    const terminalBody = document.getElementById('lab-terminal');
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+}
+
+/* =========================================
+   6. INITIALIZATION
+   ========================================= */
+
+function closeModal() {
+    document.getElementById('disclaimer-modal').style.display = 'none';
+}
+
+// Start
+updateUI();
+
+</script>
+</body>
+</html> 
